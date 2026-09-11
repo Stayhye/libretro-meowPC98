@@ -814,17 +814,17 @@ void retro_run (void)
         sound_play_cb(NULL, NULL,SNDSZ*4);
    }
 
-   // Explicitly map core output to PS2 ABGR1555 (Blue high bits, Red low bits, opaque alpha)
+  // Correct the inverted channel extraction: Red is in bits 0-4, Blue is in bits 10-14
    {
       int i;
       uint16_t *buf = (uint16_t *)FrameBuffer;
       int num_pixels = LR_SCREENWIDTH * LR_SCREENHEIGHT;
       for (i = 0; i < num_pixels; i++) {
          uint16_t p = buf[i];
-         uint32_t r = (p >> 10) & 0x1F;
-         uint32_t g = (p >> 5) & 0x1F;
-         uint32_t b = p & 0x1F;
-         buf[i] = 0x8000 | (b << 10) | (g << 5) | r;
+         uint32_t r = p & 0x1F;         // Red is in lower 5 bits
+         uint32_t g = (p >> 5) & 0x1F;  // Green is in middle 5 bits
+         uint32_t b = (p >> 10) & 0x1F; // Blue is in upper 5 bits
+         buf[i] = 0x8000 | (b << 10) | (g << 5) | r; // Output ABGR1555 with opaque alpha
       }
    }
 
