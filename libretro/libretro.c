@@ -746,13 +746,15 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 
 void retro_init (void)
 {
-   enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_0RGB1555;
-   if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt)) {
-      if (log_cb)
-         log_cb(RETRO_LOG_WARN, "Frontend refused 0RGB1555 format request.\n");
-   }
+   enum retro_pixel_format rgb565;
+   
+
+   rgb565 = RETRO_PIXEL_FORMAT_RGB565;
+   if(environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &rgb565) && log_cb)
+         log_cb(RETRO_LOG_INFO, "Frontend supports RGB565 - will use that instead of XRGB1555.\n");
 
    update_variables();
+
    init_lr_key_to_pc98();
 }
 
@@ -798,34 +800,20 @@ void retro_run (void)
    }
 
    if (menuvram != NULL){
-    slowdown=1;
-    gui_delay_events();
+	slowdown=1;
+	gui_delay_events();
    }
 
    updateInput();
 
    if (menuvram != NULL){
-    memcpy(FrameBuffer,GuiBuffer,LR_SCREENWIDTH*LR_SCREENHEIGHT*2);
-    draw_cross(lastx,lasty);
+	memcpy(FrameBuffer,GuiBuffer,LR_SCREENWIDTH*LR_SCREENHEIGHT*2);
+	draw_cross(lastx,lasty);
    }
    else {
-        //emulate 1 frame
-        pccore_exec(true /*draw*/);
-        sound_play_cb(NULL, NULL,SNDSZ*4);
-   }
-
-  // Correct the inverted channel extraction: Red is in bits 0-4, Blue is in bits 10-14
-   {
-      int i;
-      uint16_t *buf = (uint16_t *)FrameBuffer;
-      int num_pixels = LR_SCREENWIDTH * LR_SCREENHEIGHT;
-      for (i = 0; i < num_pixels; i++) {
-         uint16_t p = buf[i];
-         uint32_t r = (p >> 10) & 0x1F;         // Red is in lower 5 bits
-         uint32_t g = (p >> 5) & 0x1F;  // Green is in middle 5 bits
-         uint32_t b =  p & 0x1F; // Blue is in upper 5 bits
-         buf[i] = 0x8000 | (b << 10) | (g << 5) | r; // Output ABGR1555 with opaque alpha
-      }
+   	//emulate 1 frame
+   	pccore_exec(true /*draw*/);
+   	sound_play_cb(NULL, NULL,SNDSZ*4);
    }
 
    video_cb(FrameBuffer, LR_SCREENWIDTH, LR_SCREENHEIGHT, LR_SCREENWIDTH * 2/*Pitch*/);
