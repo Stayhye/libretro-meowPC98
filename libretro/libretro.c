@@ -815,18 +815,13 @@ void retro_run (void)
         sound_play_cb(NULL, NULL,SNDSZ*4);
    }
 
-   // Convert RGB565 to ARGB1555 (ABGR1555 flipped with Red in top 5 bits, Blue in bottom)
+   // Force the PS2 alpha bit (bit 15) to opaque without altering core-rendered color channels
    {
       int i;
       uint16_t *buf = (uint16_t *)FrameBuffer;
       int num_pixels = LR_SCREENWIDTH * LR_SCREENHEIGHT;
       for (i = 0; i < num_pixels; i++) {
-         uint16_t p = buf[i];
-         uint32_t r = (p >> 11) & 0x1F;
-         uint32_t g = (p >> 5) & 0x3F;
-         uint32_t b = p & 0x1F;
-         g >>= 1; // scale 6-bit green to 5-bit
-         buf[i] = 0x8000 | (r << 10) | (g << 5) | b;
+         buf[i] |= 0x8000;
       }
    }
 
