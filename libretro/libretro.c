@@ -747,8 +747,10 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 void retro_init (void)
 {
    enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_0RGB1555;
-   if(environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt) && log_cb)
-      log_cb(RETRO_LOG_INFO, "Frontend set to 0RGB1555.\n");
+   if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt)) {
+      if (log_cb)
+         log_cb(RETRO_LOG_WARN, "Frontend refused 0RGB1555 format request.\n");
+   }
 
    update_variables();
    init_lr_key_to_pc98();
