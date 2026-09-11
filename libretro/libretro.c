@@ -748,9 +748,9 @@ void retro_init (void)
 {
    enum retro_pixel_format fmt;
 
-   fmt = RETRO_PIXEL_FORMAT_1555;
+   fmt = RETRO_PIXEL_FORMAT_0RGB1555;
    if(environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt) && log_cb)
-      log_cb(RETRO_LOG_INFO, "Frontend supports 0x1555 (ABGR1555) - using it.\n");
+      log_cb(RETRO_LOG_INFO, "Frontend supports 0RGB1555 - using it.\n");
 
    update_variables();
 
