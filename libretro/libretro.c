@@ -809,7 +809,7 @@ void retro_run (void)
    }
 
    // Convert RGB565 to PS2 ABGR1555 with correct channel mapping and opaque alpha
-   {
+   
       int i;
       uint16_t *buf = (uint16_t *)FrameBuffer;
       int num_pixels = LR_SCREENWIDTH * LR_SCREENHEIGHT;
@@ -824,7 +824,7 @@ void retro_run (void)
          
          buf[i] = 0x8000 | (b << 10) | (g << 5) | r;
       }
-   }
+   
 
    video_cb(FrameBuffer, LR_SCREENWIDTH, LR_SCREENHEIGHT, LR_SCREENWIDTH * 2);
 }
