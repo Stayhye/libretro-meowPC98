@@ -821,9 +821,9 @@ void retro_run (void)
       int num_pixels = LR_SCREENWIDTH * LR_SCREENHEIGHT;
       for (i = 0; i < num_pixels; i++) {
          uint16_t p = buf[i];
-         uint32_t r = p & 0x1F;         // Red is in lower 5 bits
+         uint32_t r = (p >> 10) & 0x1F;         // Red is in lower 5 bits
          uint32_t g = (p >> 5) & 0x1F;  // Green is in middle 5 bits
-         uint32_t b = (p >> 10) & 0x1F; // Blue is in upper 5 bits
+         uint32_t b =  p & 0x1F; // Blue is in upper 5 bits
          buf[i] = 0x8000 | (b << 10) | (g << 5) | r; // Output ABGR1555 with opaque alpha
       }
    }
