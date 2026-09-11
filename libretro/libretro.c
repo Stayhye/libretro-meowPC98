@@ -808,22 +808,22 @@ void retro_run (void)
       sound_play_cb(NULL, NULL, SNDSZ * 4);
    }
 
-   // Convert RGB565 to PS2 ABGR1555 with correct channel mapping and opaque alpha
-      int i;
-      uint16_t *buf = (uint16_t *)FrameBuffer;
-      int num_pixels = LR_SCREENWIDTH * LR_SCREENHEIGHT;
-      for (i = 0; i < num_pixels; i++) {
-         uint16_t p = buf[i];
-         if (p == 0) continue; // Skip black/transparent pixels to prevent alpha tearing
-         
-         uint32_t r = (p >> 11) & 0x1F;
-         uint32_t g = (p >> 6) & 0x1F; // shift by additional bit to scale to 5 bits.
-         uint32_t b = p & 0x1F;
+	uint16_t *src_buf = (uint16_t *)FrameBuffer;
+	int num_pixels = LR_SCREENWIDTH * LR_SCREENHEIGHT;
+	uint16_t *dst_buf = (uint16_t *)malloc(num_pixels * sizeof(uint16_t)); 
 
-         buf[i] = 0x8000 | (b << 10) | (g << 5) | r;
-      }
+	for (int i = 0; i < num_pixels; i++) {
+	   uint16_t p = src_buf[i];
+	   
+	   uint32_t r = (p >> 11) & 0x1F;
+	   uint32_t g = (p >> 6) & 0x1F;
+	   uint32_t b = p & 0x1F;
 
-   video_cb(FrameBuffer, LR_SCREENWIDTH, LR_SCREENHEIGHT, LR_SCREENWIDTH * 2);
+	   dst_buf[i] = 0x8000 | (b << 10) | (g << 5) | r;
+	}
+
+	video_cb(dst_buf, LR_SCREENWIDTH, LR_SCREENHEIGHT, LR_SCREENWIDTH * 2);
+	free(dst_buf);
 }
 
 size_t retro_serialize_size (void)
