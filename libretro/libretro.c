@@ -746,15 +746,11 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 
 void retro_init (void)
 {
-   enum retro_pixel_format rgb565;
-   
-
-   rgb565 = RETRO_PIXEL_FORMAT_RGB565;
-   if(environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &rgb565) && log_cb)
-         log_cb(RETRO_LOG_INFO, "Frontend supports RGB565 - will use that instead of XRGB1555.\n");
+   enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_RGB565;
+   if (environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt) && log_cb)
+      log_cb(RETRO_LOG_INFO, "Frontend set to RGB565.\n");
 
    update_variables();
-
    init_lr_key_to_pc98();
 }
 
@@ -787,11 +783,8 @@ void retro_run (void)
    }
 
    bool updated = false;
-
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
-   {
       update_variables();
-   }
 
    if (did_reset){
       pccore_cfgupdate();
@@ -800,23 +793,37 @@ void retro_run (void)
    }
 
    if (menuvram != NULL){
-	slowdown=1;
-	gui_delay_events();
+      slowdown=1;
+      gui_delay_events();
    }
 
    updateInput();
 
    if (menuvram != NULL){
-	memcpy(FrameBuffer,GuiBuffer,LR_SCREENWIDTH*LR_SCREENHEIGHT*2);
-	draw_cross(lastx,lasty);
+      memcpy(FrameBuffer, GuiBuffer, LR_SCREENWIDTH * LR_SCREENHEIGHT * 2);
+      draw_cross(lastx, lasty);
    }
    else {
-   	//emulate 1 frame
-   	pccore_exec(true /*draw*/);
-   	sound_play_cb(NULL, NULL,SNDSZ*4);
+      pccore_exec(true);
+      sound_play_cb(NULL, NULL, SNDSZ * 4);
    }
 
-   video_cb(FrameBuffer, LR_SCREENWIDTH, LR_SCREENHEIGHT, LR_SCREENWIDTH * 2/*Pitch*/);
+   // Convert RGB565 to PS2 ABGR1555 with correct channel mapping and opaque alpha
+   {
+      int i;
+      uint16_t *buf = (uint16_t *)FrameBuffer;
+      int num_pixels = LR_SCREENWIDTH * LR_SCREENHEIGHT;
+      for (i = 0; i < num_pixels; i++) {
+         uint16_t p = buf[i];
+         uint32_t r = (p >> 11) & 0x1F;
+         uint32_t g = (p >> 5) & 0x3F;
+         uint32_t b = p & 0x1F;
+         g >>= 1; // Scale 6-bit green to 5-bit
+         buf[i] = 0x8000 | (b << 10) | (g << 5) | r;
+      }
+   }
+
+   video_cb(FrameBuffer, LR_SCREENWIDTH, LR_SCREENHEIGHT, LR_SCREENWIDTH * 2);
 }
 
 size_t retro_serialize_size (void)
