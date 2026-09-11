@@ -805,7 +805,7 @@ void retro_run (void)
    updateInput();
 
    if (menuvram != NULL){
-    memcpy(FrameBuffer,GuiByte,LR_SCREENWIDTH*LR_SCREENHEIGHT*2); // or GuiBuffer
+    memcpy(FrameBuffer,GuiBuffer,LR_SCREENWIDTH*LR_SCREENHEIGHT*2);
     draw_cross(lastx,lasty);
    }
    else {
@@ -821,11 +821,9 @@ void retro_run (void)
       int num_pixels = LR_SCREENWIDTH * LR_SCREENHEIGHT;
       for (i = 0; i < num_pixels; i++) {
          uint16_t p = buf[i];
-         // Assuming core outputs 0RGB1555 (Red in top bits 10-14, Blue in bottom bits 0-4)
          uint32_t r = (p >> 10) & 0x1F;
          uint32_t g = (p >> 5) & 0x1F;
          uint32_t b = p & 0x1F;
-         // Pack into PS2 native ABGR1555 (Blue in top bits 10-14, Red in bottom bits 0-4)
          buf[i] = 0x8000 | (b << 10) | (g << 5) | r;
       }
    }
