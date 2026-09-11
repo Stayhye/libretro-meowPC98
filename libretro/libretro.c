@@ -746,14 +746,11 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 
 void retro_init (void)
 {
-   enum retro_pixel_format fmt;
-
-   fmt = RETRO_PIXEL_FORMAT_0RGB1555;
+   enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_0RGB1555;
    if(environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt) && log_cb)
-      log_cb(RETRO_LOG_INFO, "Frontend supports 0RGB1555 - using it.\n");
+      log_cb(RETRO_LOG_INFO, "Frontend set to 0RGB1555.\n");
 
    update_variables();
-
    init_lr_key_to_pc98();
 }
 
@@ -815,7 +812,7 @@ void retro_run (void)
         sound_play_cb(NULL, NULL,SNDSZ*4);
    }
 
-   // Force the PS2 alpha bit (bit 15) to opaque without altering core-rendered color channels
+   // Force the alpha bit to opaque to stop PS2 GS blue flickering
    {
       int i;
       uint16_t *buf = (uint16_t *)FrameBuffer;
