@@ -815,7 +815,10 @@ void retro_run (void)
       int num_pixels = LR_SCREENWIDTH * LR_SCREENHEIGHT;
       for (i = 0; i < num_pixels; i++) {
          uint16_t p = buf[i];
-         if (p == 0) continue; // Skip black/transparent pixels to prevent alpha tearing
+         if (p == 0) {
+            buf[i] = 0x8001; // Opaque near-black to prevent alpha-channel clearing
+            continue;
+         }
          
          uint32_t r = (p >> 11) & 0x1F;
          uint32_t g = (p >> 5) & 0x3F;
