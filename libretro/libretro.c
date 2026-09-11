@@ -816,7 +816,7 @@ void retro_run (void)
         sound_play_cb(NULL, NULL,SNDSZ*4);
    }
 
-   // Convert FrameBuffer with swapped Red and Blue channels
+   // Convert FrameBuffer to ABGR1555 with enforced opaque alpha (0x8000) for both emulation and menus
    {
       int i;
       uint16_t *buf = (uint16_t *)FrameBuffer;
