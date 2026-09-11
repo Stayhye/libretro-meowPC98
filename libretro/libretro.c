@@ -816,7 +816,7 @@ void retro_run (void)
         sound_play_cb(NULL, NULL,SNDSZ*4);
    }
 
-   // Convert FrameBuffer from RGB565 to ABGR1555
+   // Convert FrameBuffer with swapped Red and Blue channels
    {
       int i;
       uint16_t *buf = (uint16_t *)FrameBuffer;
@@ -827,7 +827,7 @@ void retro_run (void)
          uint32_t g = (p >> 5) & 0x3F;
          uint32_t b = p & 0x1F;
          g >>= 1; // 6-bit green to 5-bit
-         buf[i] = 0x8000 | (b << 10) | (g << 5) | r;
+         buf[i] = 0x8000 | (r << 10) | (g << 5) | b;
       }
    }
 
