@@ -809,20 +809,13 @@ void retro_run (void)
    }
 
    // Convert RGB565 to PS2 ABGR1555 with correct channel mapping and opaque alpha
-   if (!FrameBuffer)
-      return;
-
-   // Safe conversion loop with null guard
    {
       int i;
       uint16_t *buf = (uint16_t *)FrameBuffer;
       int num_pixels = LR_SCREENWIDTH * LR_SCREENHEIGHT;
       for (i = 0; i < num_pixels; i++) {
          uint16_t p = buf[i];
-         if (p == 0) {
-            buf[i] = 0x8001; // Opaque near-black
-            continue;
-         }
+         if (p == 0) continue; // Skip black/transparent pixels to prevent alpha tearing
          
          uint32_t r = (p >> 11) & 0x1F;
          uint32_t g = (p >> 5) & 0x3F;
