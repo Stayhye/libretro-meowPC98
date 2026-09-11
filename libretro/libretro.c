@@ -809,6 +809,10 @@ void retro_run (void)
    }
 
    // Convert RGB565 to PS2 ABGR1555 with correct channel mapping and opaque alpha
+   if (!FrameBuffer)
+      return;
+
+   // Safe conversion loop with null guard
    {
       int i;
       uint16_t *buf = (uint16_t *)FrameBuffer;
@@ -816,7 +820,7 @@ void retro_run (void)
       for (i = 0; i < num_pixels; i++) {
          uint16_t p = buf[i];
          if (p == 0) {
-            buf[i] = 0x8001; // Opaque near-black to prevent alpha-channel clearing
+            buf[i] = 0x8001; // Opaque near-black
             continue;
          }
          
